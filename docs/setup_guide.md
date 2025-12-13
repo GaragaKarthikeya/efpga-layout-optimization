@@ -89,15 +89,46 @@ pip install prettytable
 
 ## After Installing
 
-Activate the Python environment before running VTR scripts:
+### Add Convenient Aliases (Recommended)
+
+Add these to your `~/.bashrc` for easier VTR usage:
 ```bash
-cd ~/vtr-verilog-to-routing  # or wherever you installed
-source venv/bin/activate
+export PATH="/home/karthikeya/vtr-verilog-to-routing/vtr_flow/scripts:$PATH"
+alias vtr-activate='source ~/vtr-verilog-to-routing/venv/bin/activate'
 ```
 
-Run the basic test:
+Then reload: `source ~/.bashrc`
+
+**Note**: If you installed VTR following this guide after Dec 13, 2024, these are already configured!
+
+### Test Your Installation
+
+**Option 1 - Automated test (easiest)**:
 ```bash
-./vpr/vpr vtr_flow/arch/timing/EArch.xml vtr_flow/benchmarks/blif/tseng.blif --route_chan_width 100
+cd ~/efpga-layout-optimization
+./vtr-experiments/test_setup.sh
 ```
 
-You should see it pack → place → route → "VPR succeeded"
+**Option 2 - Manual VPR test**:
+```bash
+cd ~/vtr-verilog-to-routing
+./build/vpr/vpr vtr_flow/arch/timing/EArch.xml vtr_flow/benchmarks/blif/tseng.blif --route_chan_width 100
+```
+
+**Option 3 - Full VTR flow test** (Verilog → BLIF → Place → Route):
+```bash
+vtr-activate  # or: source ~/vtr-verilog-to-routing/venv/bin/activate
+cd ~/vtr-verilog-to-routing
+./vtr_flow/scripts/run_vtr_flow.py \
+    ~/vtr-verilog-to-routing/vtr_flow/benchmarks/verilog/diffeq1.v \
+    ~/vtr-verilog-to-routing/vtr_flow/arch/timing/EArch.xml \
+    --route_chan_width 100
+```
+
+You should see it pack → place → route → "VPR succeeded" (or "OK" for full VTR flow)
+
+### Important Notes
+
+- **tseng benchmark**: Only available as `.blif` file, not Verilog. Use `diffeq1.v` for Verilog tests.
+- **Always activate venv** before running `run_vtr_flow.py` scripts (use `vtr-activate` alias)
+- **VPR vs VTR**: VPR only works with BLIF files. Use full VTR flow for Verilog files.

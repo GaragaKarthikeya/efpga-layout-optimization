@@ -8,14 +8,18 @@ env/
 venv/
 *.egg-info/
 
-# VTR outputs (large files)
+# VTR outputs (large files) - specific to avoid catching VTR's own vtr_flow/ directory
 *.blif
 *.net
 *.place
 *.route
 *.log
-vtr_flow/
 *.rpt
+# Only ignore VTR temporary run directories in results
+vtr-experiments/results/**/vtr_flow/
+# Common VTR output directories
+temp_run/
+run*/
 
 # Results (too large for git)
 *.csv
@@ -49,6 +53,6 @@ temp/
 
 # Claude Code metadata
 CLAUDE.md
-
+GEMINI.md
 # Personal notes (local only)
 PERSONAL_NOTES.md
