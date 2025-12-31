@@ -243,20 +243,20 @@ class generate():#this class takes in the solution and the run_number and based 
         benchmark deontes whatever benchmark we choose ex: diffeq1.v,reygentop.v,spree.v
         '''
 
-        status = os.system('/home/lohithprapoorna/Desktop/vtr-verilog-to-routing/vtr_flow/scripts/run_vtr_task.py regression_tests/vtr_reg_basic/basic_timing')
+        status = os.system('vtr-verilog-to-routing/vtr_flow/scripts/run_vtr_task.py regression_tests/vtr_reg_basic/basic_timing')
         print("ran vtr-flow--sucessfully")
         #extraction script
 
         if(status == 0):#this section obtains the area,delay from the results with the help of the class extraction_script
             if(self.run_num < 10):
                 print("reading from run00"+str(self.run_num))
-                ext_object = extract("/home/lohithprapoorna/Desktop/vtr-verilog-to-routing/vtr_flow/tasks/regression_tests/vtr_reg_basic/basic_timing/run00"+str(self.run_num)+"/parse_results.txt") #-->add file name
+                ext_object = extract("vtr-verilog-to-routing/vtr_flow/tasks/regression_tests/vtr_reg_basic/basic_timing/run00"+str(self.run_num)+"/parse_results.txt") #-->add file name
             elif(self.run_num >= 10 and self.run_num < 100):
                 print("reading from run0"+str(self.run_num))
-                ext_object = extract("/home/lohithprapoorna/Desktop/vtr-verilog-to-routing/vtr_flow/tasks/regression_tests/vtr_reg_basic/basic_timing/run0"+str(self.run_num)+"/parse_results.txt") #-->add file name
+                ext_object = extract("vtr-verilog-to-routing/vtr_flow/tasks/regression_tests/vtr_reg_basic/basic_timing/run0"+str(self.run_num)+"/parse_results.txt") #-->add file name
             else:
                 print("reading from run"+str(self.run_num))
-                ext_object = extract("/home/lohithprapoorna/Desktop/vtr-verilog-to-routing/vtr_flow/tasks/regression_tests/vtr_reg_basic/basic_timing/run"+str(self.run_num)+"/parse_results.txt") #-->add file name
+                ext_object = extract("vtr-verilog-to-routing/vtr_flow/tasks/regression_tests/vtr_reg_basic/basic_timing/run"+str(self.run_num)+"/parse_results.txt") #-->add file name
             ad_prod = ext_object.main()
             print("test-no.:"+str(self.run_num))
             print("area x delay:"+str(ad_prod))
