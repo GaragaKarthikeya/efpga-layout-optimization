@@ -5,12 +5,18 @@ import os
 
 #k6_frac_N10_frac_chain_depop50_mem32K_40nm.xml is the base architecture on which we perform the genetic algortihm
 
-##run these after opening the repo
+#run these after opening the repo
 #python3 -m venv .venv
 #source .venv/bin/activate
 #pip install numpy
 #pip install jinja2
 #pip install prettytable
+#after testing for one benchmark run these commands to clear the logs from previous runs
+#cd /home/lohithprapoorna/Desktop/vtr-verilog-to-routing/vtr_flow/tasks/regression_tests/vtr_reg_basic/basic_timing/
+#find . -maxdepth 1 -mindepth 1 -type d -name "*run*"
+#find . -maxdepth 1 -mindepth 1 -type d -name "*run*" -exec rm -rf {} +
+
+
 
 class genetic_algorithm():#this is the class that implements the genetic algorithm
     def __init__(self,sol, num_sol, num_gen, cross_prob, mut_prob):
@@ -27,18 +33,24 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
         print("delted object of class gen_alg")
 
     def fitness_function(self,sol):
+        gen_object = generate(sol,self.run_num)
+        print("back to ga script")
+        result = gen_object.main()
+        del gen_object
 
-        gen_object = generate(sol,self.run_num)#this is for running the vtr flow and obtain the fitness
-        print("back to script after running vtr on sol" )
-        [fit_value,run_num] = gen_object.main()
+        # FAILURE HANDLING
+        if result is False or result == 1:
+            fit_value = 1000000000.0
+            self.run_num = self.run_num + 1
+            return fit_value
+
+        [fit_value, run_num] = result
         self.run_num = run_num
-        del gen_object#after this the gen_object need is completed
 
-        if(fit_value > self.max): 
-            self.max = fit_value
-            self.max = self.max*10000#this punishes the failed archiectures and enables the ones which have passed(fit_val!=1) equally small_number/self.max give same as all fitness_val tend to be small
-        if(fit_value == 1):
-            fit_value = self.max#for failed ones we give them the self.max becuase they should have 0 prob to get selected
+       
+        if fit_value <= 1:
+            fit_value = 1000000000.0
+
         return fit_value
     
     def initiate(self):#this function initiates the populatuion bag of solutions with rnd_solutions
@@ -61,7 +73,7 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
         min_wgt = [np.max(list(res["fit_val"]))-i for i in list(res["fit_val"])]
         #this process converts fitness_values into weights that the least area*delay ones will have higher fit_wgt
         if(sum(min_wgt) == 0):#if all the solutions have same area*delay then to handle that case
-            res["fit_wgt"] = [i/self.max for i in min_wgt]
+              res["fit_wgt"] = [i/len(min_wgt)*len(min_wgt) for i in min_wgt]
         else:
             res["fit_wgt"] = [i/sum(min_wgt) for i in min_wgt]
 
@@ -98,7 +110,7 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
         for i in range(1,n):
             if list(blockA).count(solB[i]) == 0:#checks if solB[i] gene is present in the partial offspring if no the accepted
                 for j in range(1,n):
-                    if (offspring[j][0][0] == solA[j][0][0]):#this indicates the preference (if same preference same then same kind)??? so ideally this also checks if the exchange is among the same kind of chip
+                    if (offspring[j][0][0] == solA[j][0][0]):
                         if(len(offspring[j]) == len(solB[i])):    #exchange between bram <-> bram or dsp <-> dsp or clb <->  only since our implementation does not contain their number to be same we can use this logic
                             offspring[j] = solB[i]
                             break
@@ -111,13 +123,13 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
         y = []#this is the list that maintains the y coordinates that have already been taken as a part of the mutaution
         #these are done to ensure that any two blocks wont have the same x or y coordinates from mutation
 
-        for i in range(n):#the first element(i==0) indicates the prority for that particular block type
+        for i in range(n):#the first element(i==0) indicates the prority for clb block type it has no x and y coordinates
             if(i == 0):
                 if(rnd.random() <= self.mut_prob):
                     sol[i] = rnd.randint(1,10)
             else:
                 for j in range(len(sol[i])):
-                    for k in range(len(sol[i][j])):
+                    for k in range(len(sol[i][j])):#k=2 not changed because the priority for the blocks will not chage
                         if(rnd.random() <= self.mut_prob):
                             if(k == 0):
                                 num = rnd.randint(3,20)
@@ -141,9 +153,8 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
         t_con = [0 for i in range(0,self.num_gen)]
         for gen in range(self.num_gen):
             #array of dictionaries of results
-            #called this function for first time--->self.monitor inc
             pop_bag_fit = self.fit_pop(pop_bag)
-            #final solution would be in the form--->-->[10,[[12,2,3]....],[[1,2,3]......]]
+            
             
             best_fit = np.min(pop_bag_fit["fit_val"])
             best_fit_index = pop_bag_fit["fit_val"].index(best_fit)
@@ -182,7 +193,7 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
             print(f"Best fitness: {best_fit_global}")
             print(f"Best solution: {best_sol_global}")
             print("Generation number:"+str(gen))
-            filename = "diffeq1_output.txt"
+            filename = "raygentop_output.txt"
             with open(filename, mode="a+", encoding="utf-8") as message:
                 message.write(f"Best fitness: {best_fit_global}\n")
                 message.write(f"Best solution: {best_sol_global}\n")
@@ -297,7 +308,7 @@ class extract():#this class is used for the extraction of the results from the v
         self.my_file.close()
         print(len(hwords))
         print(len(vwords))
-        return area*delay
+        return area*delay #dont know why but matching the research paper result/10
 
 
 if __name__ == "__main__":
