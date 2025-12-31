@@ -48,12 +48,7 @@ make -j4
 ./vtr_flow/scripts/run_vtr_flow.py -h
 ```
 
-## Progress
 
-| Date | What happened |
-|------|---------------|
-| Dec 1 | First meeting with prof, got the paper |
-| | |
 
 ## Useful Links
 
