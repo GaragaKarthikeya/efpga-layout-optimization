@@ -1,0 +1,3 @@
+ADP (Area x Delay): 5327291.376
+Area :48774000.0
+delay :0.109224

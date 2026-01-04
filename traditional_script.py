@@ -74,14 +74,14 @@ def main():
 
     adp = extract_adp(parse_file)
 
-    with open("diffeq2_trad.txt", "w") as f:
+    with open("boundtop_trad_output.txt", "w") as f:
         f.write(f"ADP (Area x Delay): {adp[0]}\n")
         f.write(f"Area :{adp[1]}\n")
         f.write(f"delay :{adp[2]}")
 
     print("VTR run successful")
     print(f"ADP = {adp[0]}")
-    print("Written to diffeq1_traditional_output.txt")
+    print("Written to spree_traditional_output.txt")
 
 
 if __name__ == "__main__":

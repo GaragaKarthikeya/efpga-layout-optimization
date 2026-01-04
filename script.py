@@ -2,6 +2,7 @@ import numpy  as np
 import random as rnd
 from jinja2 import Environment, FileSystemLoader
 import os
+from copy import deepcopy
 
 #k6_frac_N10_frac_chain_depop50_mem32K_40nm.xml is the base architecture on which we perform the genetic algortihm
 
@@ -56,7 +57,7 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
     def initiate(self):#this function initiates the populatuion bag of solutions with rnd_solutions
         population_bag = []
         for i in range(self.num_sol):
-            rnd_sol = self.sol.copy()
+            rnd_sol = deepcopy(self.sol)
             population_bag.append(rnd_sol)#appends the same solution self.num_sol times(size of population bag)
         return np.array(population_bag,dtype=object)#returns the population bag as a numpy array
     
@@ -98,7 +99,7 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
     def crossover(self, solA, solB):
         #solA and solB are array of solutions in the population bag
         # offspring = [10,[[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan]],[[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan],[np.nan,np.nan,np.nan]]]
-        offspring = solA
+        offspring = deepcopy(solA)
         # we know that len(solA) = 3
         n = len(solA)    
         
@@ -107,10 +108,11 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
         end_pnt = n if int(str_pnt+num_els) > n else int(str_pnt+num_els)
         blockA = list(solA[str_pnt:end_pnt])#blcokA contains the genes from the solA from the str_pnt to end_pnt
         offspring[str_pnt:end_pnt] = blockA#placing some genes from solA onto the offspring
-        for i in range(1,n):
-            if list(blockA).count(solB[i]) == 0:#checks if solB[i] gene is present in the partial offspring if no the accepted
+        for i in range(1,n):#when crossover occurs clb priority wont change
+            if list(blockA).count(solB[i]) == 0:#checks if solB[i] (it is for checking whcih part of solB should be given to offspring)
                 for j in range(1,n):
-                    if (offspring[j][0][0] == solA[j][0][0]):
+                    if (offspring[j][0][0] == solA[j][0][0]):#same kind of chips like the dsp or the bram ones wont have the same x-coordinate for same solution 
+                                                            #if x coordinate is same as solA then replace that gene with solB gene
                         if(len(offspring[j]) == len(solB[i])):    #exchange between bram <-> bram or dsp <-> dsp or clb <->  only since our implementation does not contain their number to be same we can use this logic
                             offspring[j] = solB[i]
                             break
@@ -118,6 +120,7 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
         return offspring
     
     def mutation(self,sol):
+        sol = deepcopy(sol)
         n = len(sol) #-->3
         x = [] #this is the list that maintains the x cordinates that have already been taken as a part of mutation
         y = []#this is the list that maintains the y coordinates that have already been taken as a part of the mutaution
@@ -165,7 +168,7 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
                 best_fit_global = best_fit
                 best_sol_global = best_sol#since it is the first iteration of generations these variables should be initailsed
             else:
-                if best_fit <= best_fit_global:
+                if (best_fit <= best_fit_global):
                     best_fit_global = best_fit
                     best_sol_global = best_sol
             
@@ -174,8 +177,10 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
             for i in range(self.num_sol):
                 pA = self.pick(pop_bag,pop_bag_fit)
                 pB = self.pick(pop_bag,pop_bag_fit)
-                new_element = pA
-
+                new_element = deepcopy(pA)
+                
+                print("new element before func: ")
+                print(new_element)
                 if rnd.random() <= self.cross_prob:
                     new_element = self.crossover(pA,pB)
 
@@ -183,6 +188,11 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
                     new_element = self.mutation(new_element)
 
                 new_pop_bag.append(new_element)
+                print("new_elelment after func: ",i,sep="")
+                print(new_element)
+                print("length of population bag")
+                print(pop_bag)
+
 
             pop_bag = np.array(new_pop_bag)     #any (self.num_sol which is size of population bag) solutions from the previus generation go into the next generation that depends on the pick,mutate,crossover functions
 
@@ -193,7 +203,7 @@ class genetic_algorithm():#this is the class that implements the genetic algorit
             print(f"Best fitness: {best_fit_global}")
             print(f"Best solution: {best_sol_global}")
             print("Generation number:"+str(gen))
-            filename = "raygentop_output.txt"
+            filename = "ray_output.txt"
             with open(filename, mode="a+", encoding="utf-8") as message:
                 message.write(f"Best fitness: {best_fit_global}\n")
                 message.write(f"Best solution: {best_sol_global}\n")
