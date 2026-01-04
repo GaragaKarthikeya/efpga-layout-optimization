@@ -13,9 +13,6 @@ Prof gave us a paper called GOLDS about optimizing FPGA layouts. Our job:
 2. Try to reproduce the paper's results
 3. Learn as we go
 
-## Current Status
-
-🔧 **Setting up VTR** - trying to get this thing to compile
 
 ## Quick Links
 
@@ -48,12 +45,7 @@ make -j4
 ./vtr_flow/scripts/run_vtr_flow.py -h
 ```
 
-## Progress
 
-| Date | What happened |
-|------|---------------|
-| Dec 1 | First meeting with prof, got the paper |
-| | |
 
 ## Useful Links
 
